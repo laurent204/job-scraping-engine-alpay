@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Overview — Job Harvester{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Overview</h1>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Active Jobs</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ "{:,}".format(total_jobs) }}</dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">New This Week</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-emerald-600">{{ "{:,}".format(new_this_week) }}</dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Companies Tracked</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ "{:,}".format(total_companies) }}</dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Last Scrape</dt>
+        {% if last_run %}
+        <dd class="mt-1 text-lg font-semibold tracking-tight
+            {% if last_run.status == 'completed' %}text-emerald-600{% elif last_run.status == 'running' %}text-amber-600{% else %}text-red-600{% endif %}">
+            {{ last_run.status | capitalize }}
+        </dd>
+        <dd class="text-xs text-gray-500 mt-1">
+            {{ last_run.started_at.strftime('%d %b %Y %H:%M') if last_run.started_at }} — {{ last_run.jobs_new }} new
+        </dd>
+        {% else %}
+        <dd class="mt-1 text-lg font-semibold text-gray-400">No runs yet</dd>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-8">
+    <!-- Jobs over time -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-sm font-medium text-gray-500 mb-4">Jobs Discovered (Last 12 Weeks)</h3>
+        <canvas id="chartJobsOverTime" height="200"></canvas>
+    </div>
+
+    <!-- Jobs by source -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-sm font-medium text-gray-500 mb-4">Distribution by Source</h3>
+        <canvas id="chartBySource" height="200"></canvas>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <!-- Jobs by category -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-sm font-medium text-gray-500 mb-4">Jobs by Category</h3>
+        <canvas id="chartByCategory" height="200"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const COLORS = [
+    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+    '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
+];
+
+async function loadCharts() {
+    // Jobs over time
+    const timeResp = await fetch('/api/jobs-over-time');
+    const timeData = await timeResp.json();
+    new Chart(document.getElementById('chartJobsOverTime'), {
+        type: 'line',
+        data: {
+            labels: timeData.labels,
+            datasets: [{
+                label: 'New Jobs',
+                data: timeData.values,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.3,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } },
+        }
+    });
+
+    // By source (doughnut)
+    const srcResp = await fetch('/api/jobs-by-source');
+    const srcData = await srcResp.json();
+    new Chart(document.getElementById('chartBySource'), {
+        type: 'doughnut',
+        data: {
+            labels: srcData.labels,
+            datasets: [{
+                data: srcData.values,
+                backgroundColor: COLORS.slice(0, srcData.labels.length),
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    // By category (bar)
+    const catResp = await fetch('/api/jobs-by-category');
+    const catData = await catResp.json();
+    new Chart(document.getElementById('chartByCategory'), {
+        type: 'bar',
+        data: {
+            labels: catData.labels,
+            datasets: [{
+                label: 'Jobs',
+                data: catData.values,
+                backgroundColor: COLORS.slice(0, catData.labels.length),
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } },
+        }
+    });
+}
+
+loadCharts();
+</script>
+{% endblock %}

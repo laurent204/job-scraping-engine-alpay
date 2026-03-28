@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Scheduler — Job Harvester{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Scheduler Management</h1>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    {% for job in jobs %}
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">{{ job.name }}</h3>
+                <p class="text-xs text-gray-500 font-mono">{{ job.id }}</p>
+            </div>
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                {% if job.paused %}bg-gray-100 text-gray-800{% else %}bg-green-100 text-green-800{% endif %}">
+                {% if job.paused %}Paused{% else %}Active{% endif %}
+            </span>
+        </div>
+
+        <div class="px-6 py-4">
+            <!-- Current schedule -->
+            <div class="mb-4">
+                <p class="text-sm text-gray-500">Current schedule</p>
+                <p class="text-lg font-medium text-gray-900">
+                    {{ job.day | capitalize if job.day else '—' }} at {{ job.hour or '0' }}:{{ '%02d' | format(job.minute | int if job.minute else 0) }}
+                </p>
+                {% if job.next_run %}
+                <p class="text-xs text-gray-500 mt-1">
+                    Next run: {{ job.next_run.strftime('%a %d %b %Y %H:%M %Z') }}
+                </p>
+                {% else %}
+                <p class="text-xs text-amber-600 mt-1">No next run scheduled (paused)</p>
+                {% endif %}
+            </div>
+
+            <!-- Modify schedule form -->
+            <form action="{{ url_for('scheduler_views.modify', job_id=job.id) }}" method="post" class="mb-4">
+                <p class="text-xs font-medium text-gray-500 mb-2 uppercase">Modify Schedule</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <select name="day" class="w-full rounded-md border-gray-300 shadow-sm text-sm">
+                            {% for val, label in days %}
+                            <option value="{{ val }}" {% if val == job.day %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <input type="number" name="hour" min="0" max="23" value="{{ job.hour or 0 }}"
+                               class="w-full rounded-md border-gray-300 shadow-sm text-sm" placeholder="Hour">
+                    </div>
+                    <div>
+                        <input type="number" name="minute" min="0" max="59" value="{{ job.minute or 0 }}"
+                               class="w-full rounded-md border-gray-300 shadow-sm text-sm" placeholder="Min">
+                    </div>
+                </div>
+                <button type="submit" class="mt-2 w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-500">
+                    Update Schedule
+                </button>
+            </form>
+
+            <!-- Action buttons -->
+            <div class="flex gap-2">
+                <form action="{{ url_for('scheduler_views.trigger', job_id=job.id) }}" method="post" class="flex-1">
+                    <button type="submit" class="w-full rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+                            onclick="return confirm('Run {{ job.name }} now?')">
+                        Run Now
+                    </button>
+                </form>
+
+                {% if job.paused %}
+                <form action="{{ url_for('scheduler_views.resume', job_id=job.id) }}" method="post" class="flex-1">
+                    <button type="submit" class="w-full rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700">
+                        Resume
+                    </button>
+                </form>
+                {% else %}
+                <form action="{{ url_for('scheduler_views.pause', job_id=job.id) }}" method="post" class="flex-1">
+                    <button type="submit" class="w-full rounded-md bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300">
+                        Pause
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if not jobs %}
+    <div class="col-span-2 bg-white shadow rounded-lg px-6 py-12 text-center text-sm text-gray-500">
+        No scheduled jobs configured.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

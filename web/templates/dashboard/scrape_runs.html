@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Scrape Runs — Job Harvester{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Scrape Runs</h1>
+
+<div class="bg-white shadow rounded-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Started</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Found</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">New</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Errors</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for run in runs %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm text-gray-500">{{ run.id }}</td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ run.run_type }}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    {{ run.started_at.strftime('%d %b %Y %H:%M') if run.started_at else '—' }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    {% if run.duration is not none %}{{ run.duration }}s{% else %}—{% endif %}
+                </td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                        {% if run.status == 'completed' %}bg-green-100 text-green-800
+                        {% elif run.status == 'running' %}bg-amber-100 text-amber-800
+                        {% else %}bg-red-100 text-red-800{% endif %}">
+                        {{ run.status }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900 text-right">{{ run.jobs_found }}</td>
+                <td class="px-6 py-4 text-sm font-medium text-emerald-600 text-right">{{ run.jobs_new }}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    {% if run.errors %}
+                    <details>
+                        <summary class="cursor-pointer text-red-600">{{ run.errors | length }} error(s)</summary>
+                        <ul class="mt-1 text-xs">
+                            {% for err in run.errors[:5] %}
+                            <li>{{ err }}</li>
+                            {% endfor %}
+                        </ul>
+                    </details>
+                    {% else %}
+                    —
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not runs %}
+            <tr>
+                <td colspan="8" class="px-6 py-12 text-center text-sm text-gray-500">No scrape runs yet.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<nav class="flex items-center justify-between mt-4">
+    <div class="flex gap-2">
+        {% if page > 1 %}
+        <a href="?page={{ page - 1 }}" class="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-50">Previous</a>
+        {% endif %}
+        {% if page < total_pages %}
+        <a href="?page={{ page + 1 }}" class="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-50">Next</a>
+        {% endif %}
+    </div>
+    <span class="text-sm text-gray-500">Page {{ page }} of {{ total_pages }}</span>
+</nav>
+{% endif %}
+{% endblock %}

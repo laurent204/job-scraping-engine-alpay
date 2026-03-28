@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: job_harvester
+      POSTGRES_USER: harvester
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  harvester:
+    build: .
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://harvester:${DB_PASSWORD:-changeme}@db:5432/job_harvester
+      GOOGLE_SHEET_ID: ${GOOGLE_SHEET_ID}
+      GOOGLE_SERVICE_ACCOUNT_FILE: /app/credentials/service-account.json
+      APIFY_API_TOKEN: ${APIFY_API_TOKEN:-}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY:-change-me}
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./credentials:/app/credentials:ro
+    command: python run_dashboard.py
+
+volumes:
+  pgdata:

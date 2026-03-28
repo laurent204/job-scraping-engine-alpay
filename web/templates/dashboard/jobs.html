@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Jobs — Job Harvester{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Jobs</h1>
+    <span class="text-sm text-gray-500">{{ "{:,}".format(total) }} total</span>
+</div>
+
+<!-- Filters -->
+<form method="get" class="bg-white shadow rounded-lg p-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Source</label>
+            <select name="source" class="w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="">All sources</option>
+                {% for src in sources %}
+                <option value="{{ src }}" {% if src == current_source %}selected{% endif %}>{{ src }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Category</label>
+            <select name="category" class="w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="">All categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == current_category %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Search</label>
+            <input type="text" name="search" value="{{ current_search }}" placeholder="Title or company..."
+                   class="w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500">
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="w-full rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700">
+                Filter
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- Jobs table -->
+<div class="bg-white shadow rounded-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Source</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for job in jobs %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs truncate">
+                    {% if job.job_url %}
+                    <a href="{{ job.job_url }}" target="_blank" class="text-blue-600 hover:underline">{{ job.title }}</a>
+                    {% else %}
+                    {{ job.title }}
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ job.company_name or '—' }}</td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800">
+                        {{ job.source }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ job.category or '—' }}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ job.locality or job.location or '—' }}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    {{ job.created_at.strftime('%d %b %Y') if job.created_at else '—' }}
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not jobs %}
+            <tr>
+                <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">No jobs found.</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<nav class="flex items-center justify-between mt-4">
+    <div class="flex gap-2">
+        {% if page > 1 %}
+        <a href="?page={{ page - 1 }}&source={{ current_source }}&category={{ current_category }}&search={{ current_search }}"
+           class="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-50">Previous</a>
+        {% endif %}
+        {% if page < total_pages %}
+        <a href="?page={{ page + 1 }}&source={{ current_source }}&category={{ current_category }}&search={{ current_search }}"
+           class="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-50">Next</a>
+        {% endif %}
+    </div>
+    <span class="text-sm text-gray-500">Page {{ page }} of {{ total_pages }}</span>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(ts|js|sql|prisma\\)$\")",
+      "Read(//Users/laurentfalise/Desktop/bet-cookie/**)",
+      "Bash(pip3 install:*)"
+    ]
+  }
+}
