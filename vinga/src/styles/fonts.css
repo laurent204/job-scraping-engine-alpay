@@ -1,0 +1,24 @@
+/*
+ * Latin-only variable fonts (French + Catalan are fully covered,
+ * including œ, punt volat ·, typographic quotes and €).
+ * Declared manually instead of importing the fontsource CSS, which
+ * would pull every unicode subset into single-file builds.
+ */
+
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2')
+    format('woff2-variations');
+}
+
+@font-face {
+  font-family: 'Outfit Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2')
+    format('woff2-variations');
+}

@@ -65,7 +65,9 @@ Deux œuvres se succèdent, rendues en WebGL et manipulables du doigt : **el sol
 Si le téléchargement échoue (hors-ligne, réseau restreint), l'app le dit clairement et continue
 avec les niveaux 2-3 — ce chemin est couvert par le harnais de test.
 
-## Lancer
+## Ouvrir l'application
+
+**En local (développement)** :
 
 ```bash
 cd vinga
@@ -73,11 +75,19 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-Build de production : `npm run build` puis `npm run preview`.
+Le serveur écoute aussi sur le réseau local (`host: true`) : ouvre l'URL « Network » affichée
+dans le terminal depuis ton téléphone connecté au même wifi.
 
-C'est une **PWA installable** : ouverte sur un téléphone, « Ajouter à l'écran d'accueil » l'installe
-en plein écran (manifeste + icônes fournis). Le même code peut être empaqueté en app iOS/Android
-native via Capacitor.
+**En production** : `npm run build` puis servir `dist/` (ou `npm run preview`). Sur Vercel ou
+Netlify : importer le repo, répertoire racine `vinga`, commande `npm run build`, dossier `dist`.
+C'est une **PWA installable** : ouverte sur un téléphone, « Ajouter à l'écran d'accueil »
+l'installe en plein écran (manifeste + icônes fournis). Le même code peut être empaqueté en app
+iOS/Android native via Capacitor.
+
+**Version démo un-fichier** : `npm run build:onefile` produit `vinga-onefile.html`, une page
+autonome (JS, CSS et polices inlinés, ~1,5 Mo) qui s'ouvre n'importe où — la voix neuronale y est
+volontairement désactivée (elle inlinerait ~70 Mo de WASM et les pages partagées bloquent le
+téléchargement du modèle), l'app suit alors ses niveaux de repli audio.
 
 ## Vérification
 

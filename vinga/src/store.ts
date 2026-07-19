@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import { ALL_LESSONS } from './data/content'
 import { initialEntry, reviewFailure, reviewSuccess, type SrsEntry } from './lib/srs'
 import { setSoundEnabled } from './lib/sfx'
@@ -10,6 +10,31 @@ export const TOTAL_SHARDS = ALL_LESSONS.length * SHARDS_PER_LESSON
 
 export type Tab = 'ruta' | 'repas' | 'perfil'
 export type Overlay = null | { kind: 'lesson'; lessonId: string } | { kind: 'review' }
+
+/**
+ * localStorage can throw in sandboxed iframes or strict private modes;
+ * fall back to in-memory persistence (session-only) instead of crashing.
+ */
+function safeStorage(): Storage {
+  try {
+    const probe = '__vinga_probe'
+    localStorage.setItem(probe, '1')
+    localStorage.removeItem(probe)
+    return localStorage
+  } catch {
+    const mem = new Map<string, string>()
+    return {
+      getItem: (k: string) => mem.get(k) ?? null,
+      setItem: (k: string, v: string) => void mem.set(k, v),
+      removeItem: (k: string) => void mem.delete(k),
+      clear: () => mem.clear(),
+      key: () => null,
+      get length() {
+        return mem.size
+      },
+    } as Storage
+  }
+}
 
 function dayString(t: number) {
   const d = new Date(t)
@@ -123,6 +148,7 @@ export const useStore = create<State>()(
     }),
     {
       name: 'vinga-v1',
+      storage: createJSONStorage(safeStorage),
       partialize: (s) => ({
         onboarded: s.onboarded,
         goalMin: s.goalMin,

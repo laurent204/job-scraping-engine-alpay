@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:onefile": "vite build --config vite.artifact.config.ts && node scripts/artifact.mjs vinga-onefile.html",
     "preview": "vite preview",
     "shots": "node scripts/shots.mjs"
   },
@@ -27,6 +28,7 @@
     "@vitejs/plugin-react": "^4.5.0",
     "playwright-core": "^1.52.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-plugin-singlefile": "^2.3.3"
   }
 }

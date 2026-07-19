@@ -2,3 +2,5 @@ node_modules
 dist
 shots
 *.log
+vinga-onefile.html
+dist-artifact
