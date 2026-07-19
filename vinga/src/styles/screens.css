@@ -100,6 +100,69 @@
   padding-bottom: 130px;
 }
 
+/* — neural voice banner — */
+.voice-banner {
+  position: relative;
+  margin: 12px 20px 2px;
+  padding: 15px 16px;
+  border-radius: var(--r-m);
+  background: linear-gradient(135deg, #fdf0d2 0%, var(--crema-2) 85%);
+  box-shadow: var(--ombra-s), inset 0 0 0 1.5px rgba(207, 148, 28, 0.25);
+}
+.voice-banner-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--tinta-30);
+}
+.voice-banner-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.voice-banner-emoji {
+  font-size: 27px;
+  line-height: 1.2;
+}
+.voice-banner-txt {
+  flex: 1;
+  padding-right: 26px;
+}
+.voice-banner-txt strong {
+  font-size: 19px;
+}
+.voice-banner-txt p {
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--tinta-70);
+}
+.voice-banner-actions {
+  margin-top: 12px;
+}
+.voice-banner-btn {
+  padding: 12px 18px;
+  font-size: 15px;
+}
+.voice-progress {
+  margin-top: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--crema-3);
+  overflow: hidden;
+}
+.voice-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--sol);
+}
+
 .modul {
   margin-top: 14px;
 }
@@ -533,6 +596,21 @@
   font-size: 12px;
   font-weight: 700;
   color: var(--mar-fosc);
+}
+.listen-slow {
+  display: block;
+  margin: -8px auto 18px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--crema-2);
+  box-shadow: 0 2px 0 var(--linia);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tinta-70);
+}
+.listen-slow:active {
+  transform: translateY(2px);
+  box-shadow: none;
 }
 
 /* — pairs — */

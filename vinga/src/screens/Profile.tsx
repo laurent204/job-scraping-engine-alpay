@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useStore, TOTAL_SHARDS, SHARDS_PER_LESSON, dailyGoalXp } from '../store'
+import { downloadNeural, neuralStatus, onNeuralChange, type NeuralStatus } from '../lib/neuralVoice'
 import { ALL_LESSONS, TOTAL_WORDS } from '../data/content'
 import { Mosaic3D } from '../components/Mosaic3D'
 import { artworkFor } from '../components/artworks'
@@ -19,6 +21,43 @@ const MILESTONES = [
   { at: 28, emoji: '🏡', title: 'De la família', desc: 'Sept modules complétés' },
   { at: 32, emoji: '🏆', title: 'Obra completa', desc: 'Les deux œuvres, toute la ruta !' },
 ]
+
+function VoiceSetting() {
+  const setDeclined = useStore((s) => s.setNeuralDeclined)
+  const [status, setStatus] = useState<NeuralStatus>(neuralStatus())
+  const [pct, setPct] = useState(0)
+  useEffect(() => onNeuralChange(setStatus), [])
+
+  const label =
+    status === 'ready'
+      ? 'Neuronale « Ona » active — 100 % digitale, hors-ligne'
+      : status === 'downloading'
+        ? `Téléchargement… ${Math.round(pct * 100)} %`
+        : status === 'error'
+          ? 'Téléchargement impossible — réessaie en wifi'
+          : 'Voix du système (selon l’appareil)'
+
+  return (
+    <div className="setting-row">
+      <div>
+        <strong>Veu catalana</strong>
+        <span>{label}</span>
+      </div>
+      {status !== 'ready' && status !== 'downloading' && (
+        <button
+          className="goal-mini-btn is-active voice-setting-btn"
+          onClick={() => {
+            sfx.tap()
+            setDeclined(false)
+            void downloadNeural(setPct)
+          }}
+        >
+          {status === 'error' ? '↻' : '⬇'}
+        </button>
+      )}
+    </div>
+  )
+}
 
 export function Profile() {
   const { xp, streak, lessonsDone, srs, goalMin, sound, setSound } = useStore()
@@ -112,6 +151,7 @@ export function Profile() {
             <span />
           </button>
         </div>
+        <VoiceSetting />
         <div className="setting-row">
           <div>
             <strong>Objectif quotidien</strong>

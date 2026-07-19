@@ -4,6 +4,7 @@ import type { Lesson, Module } from '../data/types'
 import { useStore, SHARDS_PER_LESSON, dailyGoalXp, isUnlocked } from '../store'
 import { Mosaic3D } from '../components/Mosaic3D'
 import { artworkFor, ARTWORKS } from '../components/artworks'
+import { VoiceBanner } from '../components/VoiceBanner'
 import { Emblem } from '../components/Emblem'
 import { IconChat, IconCheck, IconFlame, IconLock, IconShard } from '../components/Icons'
 import { sfx } from '../lib/sfx'
@@ -202,6 +203,8 @@ export function Home() {
           Œuvre {artwork.index + 1}/{ARTWORKS.length} : « {artwork.name} » — chaque leçon pose ses tesselles.
         </p>
       </motion.section>
+
+      <VoiceBanner />
 
       <div className="ruta">
         {MODULES.map((module, mi) => {

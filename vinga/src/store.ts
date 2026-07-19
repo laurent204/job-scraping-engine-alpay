@@ -21,6 +21,8 @@ interface State {
   onboarded: boolean
   goalMin: 5 | 10 | 15
   sound: boolean
+  /** user dismissed the neural-voice download banner */
+  neuralDeclined: boolean
   xp: number
   todayXp: { day: string; xp: number }
   streak: { count: number; lastDay: string }
@@ -32,6 +34,7 @@ interface State {
 
   completeOnboarding: (goal: 5 | 10 | 15) => void
   setSound: (on: boolean) => void
+  setNeuralDeclined: (v: boolean) => void
   setTab: (t: Tab) => void
   openLesson: (lessonId: string) => void
   openReview: () => void
@@ -46,6 +49,7 @@ export const useStore = create<State>()(
       onboarded: false,
       goalMin: 10,
       sound: true,
+      neuralDeclined: false,
       xp: 0,
       todayXp: { day: dayString(Date.now()), xp: 0 },
       streak: { count: 0, lastDay: '' },
@@ -59,6 +63,7 @@ export const useStore = create<State>()(
         setSoundEnabled(on)
         set({ sound: on })
       },
+      setNeuralDeclined: (v) => set({ neuralDeclined: v }),
       setTab: (t) => set({ tab: t }),
       openLesson: (lessonId) => set({ overlay: { kind: 'lesson', lessonId } }),
       openReview: () => set({ overlay: { kind: 'review' } }),
@@ -122,6 +127,7 @@ export const useStore = create<State>()(
         onboarded: s.onboarded,
         goalMin: s.goalMin,
         sound: s.sound,
+        neuralDeclined: s.neuralDeclined,
         xp: s.xp,
         todayXp: s.todayXp,
         streak: s.streak,

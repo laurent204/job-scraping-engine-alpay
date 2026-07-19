@@ -220,6 +220,15 @@ export function ListenView({
         <IconSpeaker size={44} />
         <span className="listen-hint">Réécouter</span>
       </motion.button>
+      <button
+        className="listen-slow"
+        onClick={() => {
+          speak(prompt.ca, 0.7)
+          sfx.tap()
+        }}
+      >
+        🐢 Lentement
+      </button>
       <div className="ex-options">
         {options.map((option, i) => {
           const isAnswer = option.id === prompt.id

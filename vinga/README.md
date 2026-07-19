@@ -7,9 +7,9 @@ les conversations du quotidien — au restaurant, au marché, compter, demander 
 | --- | --- | --- | --- | --- |
 | ![Onboarding](docs/onboarding.png) | ![Accueil](docs/home.png) | ![Découverte](docs/discover.png) | ![Dialogue](docs/dialogue.png) | ![Fin de leçon](docs/complete.png) |
 
-| Œuvre 2 : le banc serpentin | Prononciation « Repeteix » |
-| --- | --- |
-| ![Le banc de Park Güell](docs/banc.png) | ![Exercice de prononciation](docs/echo.png) |
+| Œuvre 2 : le banc serpentin | Prononciation « Repeteix » | La veu de l'Ona |
+| --- | --- | --- |
+| ![Le banc de Park Güell](docs/banc.png) | ![Exercice de prononciation](docs/echo.png) | ![Voix neuronale](docs/veu.png) |
 
 ## Le concept : la progression devient une œuvre
 
@@ -47,9 +47,23 @@ Deux œuvres se succèdent, rendues en WebGL et manipulables du doigt : **el sol
   d'écrans), confettis de tesselles en canvas, bulles de dialogue animées.
 - **3D** : œuvres trencadís react-three-fiber (chargées en différé), éclat par éclat — la sphère
   se pave du haut vers le bas, le banc de gauche à droite.
-- **Sons** : petits effets synthétisés en Web Audio (aucun asset), haptique sur mobile,
-  synthèse vocale `ca-ES` avec repli espagnol et phonétique toujours visible.
+- **Sons** : petits effets synthétisés en Web Audio (aucun asset), haptique sur mobile.
 - Respect de `prefers-reduced-motion`, cibles tactiles ≥ 44 px, contrastes AA.
+
+## La voix — un système 100 % digital, à trois niveaux
+
+1. **« La veu de l'Ona »** — voix catalane **neuronale** (Piper/VITS, voix `ca_ES-upc_ona`
+   entraînée sur le corpus FestCat de l'UPC de Barcelone) exécutée **dans le navigateur en
+   WebAssembly**. Le modèle (~25 Mo) se télécharge une seule fois sur l'appareil (bannière
+   d'activation sur l'accueil, réglage dans le profil), est mis en cache (OPFS) puis fonctionne
+   **hors-ligne**. Les répliques d'une leçon sont pré-synthétisées en arrière-plan et mémorisées,
+   donc chaque tap est instantané.
+2. **Repli** : la synthèse vocale de l'appareil (`speechSynthesis`, voix `ca` puis `es`).
+3. **Toujours** : la phonétique française visible sur chaque mot, avec bouton 🐢 « lentement »
+   sur les exercices d'écoute.
+
+Si le téléchargement échoue (hors-ligne, réseau restreint), l'app le dit clairement et continue
+avec les niveaux 2-3 — ce chemin est couvert par le harnais de test.
 
 ## Lancer
 
@@ -84,6 +98,7 @@ src/
 
 ## Pistes suivantes
 
-- Enregistrements audio natifs (vraie voix catalane) à la place de la synthèse vocale
+- Voix haute qualité (modèle `medium`) en option, et voix masculine « Pau » pour les personnages
+  des dialogues ; auto-hébergement des WASM/modèles pour se passer des CDN
 - Une troisième œuvre à reconstruire : le drac de Park Güell
 - Notifications de rappel et builds natifs iOS/Android via Capacitor ; contenu B1

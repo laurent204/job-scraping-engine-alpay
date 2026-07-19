@@ -17,6 +17,7 @@ const RICH_STATE = {
     onboarded: true,
     goalMin: 10,
     sound: true,
+    neuralDeclined: true,
     xp: 385,
     todayXp: { day: today(), xp: 60 },
     streak: { count: 6, lastDay: today() },
@@ -88,10 +89,16 @@ async function shot(page, name, delay = 600) {
   await ctx.close()
 }
 
-/* ---------- 2. fresh home ---------- */
+/* ---------- 2. fresh home (+ voice banner & its offline error state) ---------- */
 {
-  const { ctx, page } = await newPage({ state: { onboarded: true, goalMin: 10, sound: true, xp: 0, todayXp: { day: today(), xp: 0 }, streak: { count: 0, lastDay: '' }, lessonsDone: {}, srs: {} }, version: 0 })
-  await shot(page, '04-home-fresh', 1600)
+  const { ctx, page } = await newPage({ state: { onboarded: true, goalMin: 10, sound: true, neuralDeclined: false, xp: 0, todayXp: { day: today(), xp: 0 }, streak: { count: 0, lastDay: '' }, lessonsDone: {}, srs: {} }, version: 0 })
+  await shot(page, '04-home-fresh', 2200)
+  const activate = page.getByRole('button', { name: 'Activer la voix' })
+  if (await activate.count()) {
+    await activate.click()
+    await page.waitForTimeout(2500)
+    await shot(page, '16-voice-error', 400)
+  }
   await ctx.close()
 }
 
@@ -139,7 +146,7 @@ async function shot(page, name, delay = 600) {
     }
     // discover card
     if (await page.getByRole('button', { name: 'Compris !' }).count()) {
-      await page.getByRole('button', { name: 'Compris !' }).click()
+      await page.getByRole('button', { name: 'Compris !' }).first().click({ timeout: 2500 }).catch(() => {})
       continue
     }
     // echo (pronunciation) → self-validate
@@ -161,8 +168,14 @@ async function shot(page, name, delay = 600) {
       if ((await left.count()) === 0) continue
       const caText = (await left.first().innerText()).trim()
       const frText = byCa.get(caText)?.fr
-      await left.first().click()
-      await page.locator('.pairs-col').nth(1).locator('.chip', { hasText: frText }).first().click()
+      await left.first().click({ timeout: 2500 }).catch(() => {})
+      await page
+        .locator('.pairs-col')
+        .nth(1)
+        .locator('.chip', { hasText: frText })
+        .first()
+        .click({ timeout: 2500 })
+        .catch(() => {})
       continue
     }
     // build
@@ -175,10 +188,14 @@ async function shot(page, name, delay = 600) {
         buildShot = true
       }
       for (const c of chips) {
-        await page.locator('.build-pool .word-chip:not(.is-used)', { hasText: new RegExp(`^${c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) }).first().click()
+        await page
+          .locator('.build-pool .word-chip:not(.is-used)', { hasText: new RegExp(`^${c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`) })
+          .first()
+          .click({ timeout: 2500 })
+          .catch(() => {})
         await page.waitForTimeout(120)
       }
-      await page.getByRole('button', { name: 'Vérifier' }).click()
+      await page.getByRole('button', { name: 'Vérifier' }).click({ timeout: 2500 }).catch(() => {})
       continue
     }
     // qcm / listen
@@ -191,12 +208,12 @@ async function shot(page, name, delay = 600) {
       const chip = target
         ? page.locator('.ex-options .chip', { hasText: target }).first()
         : page.locator('.ex-options .chip').first()
-      await chip.click()
+      await chip.click({ timeout: 2500 }).catch(() => {})
       if (!qcmShot) {
         await shot(page, '08b-lesson-qcm', 200)
         qcmShot = true
       }
-      await page.getByRole('button', { name: 'Vérifier' }).click()
+      await page.getByRole('button', { name: 'Vérifier' }).click({ timeout: 2500 }).catch(() => {})
       continue
     }
   }

@@ -4,6 +4,7 @@ import { lessonById } from '../../data/content'
 import { buildExercises, type Exercise } from '../../data/exercises'
 import { useStore } from '../../store'
 import { ttsAvailable } from '../../lib/tts'
+import { prefetchNeural } from '../../lib/neuralVoice'
 import { sfx } from '../../lib/sfx'
 import { IconClose, IconShard, IconSparkle } from '../../components/Icons'
 import { ShardBurst } from '../../components/ShardBurst'
@@ -54,6 +55,21 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
 
   const exercise = queue[idx]
   const progress = isDialogue ? dlgProgress : queue.length === 0 ? 0 : idx / queue.length
+
+  // warm the digital voice for everything this lesson will say
+  useEffect(() => {
+    if (!entry) return
+    const texts: string[] = []
+    for (const word of entry.lesson.words ?? []) {
+      texts.push(word.ca)
+      if (word.ex) texts.push(word.ex.ca)
+    }
+    for (const turn of entry.lesson.dialogue?.turns ?? []) {
+      if (turn.kind === 'npc') texts.push(turn.ca)
+      else texts.push(...turn.choices.filter((c) => c.ok).map((c) => c.ca))
+    }
+    prefetchNeural(texts)
+  }, [entry])
 
   const finish = () => {
     if (finished.current || !entry) return
