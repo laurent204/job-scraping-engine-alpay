@@ -7,7 +7,7 @@ import { ttsAvailable } from '../../lib/tts'
 import { sfx } from '../../lib/sfx'
 import { IconClose, IconShard, IconSparkle } from '../../components/Icons'
 import { ShardBurst } from '../../components/ShardBurst'
-import { BuildView, DiscoverView, ListenView, PairsView, QcmView, type Phase } from './exviews'
+import { BuildView, DiscoverView, EchoView, ListenView, PairsView, QcmView, type Phase } from './exviews'
 import { DialoguePlayer } from './DialoguePlayer'
 
 const PRAISE = ['Molt bé!', 'Perfecte!', 'Genial!', 'Fantàstic!', 'Vinga, sí!', 'Bravo!']
@@ -77,7 +77,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
       setFeedback({ title: OOPS[Math.floor(Math.random() * OOPS.length)], correct })
       setPhase('ko')
       // recycle the exercise once at the end of the queue
-      if (!retried.current.has(idx) && exercise && exercise.kind !== 'pairs') {
+      if (!retried.current.has(idx) && exercise && exercise.kind !== 'pairs' && exercise.kind !== 'echo') {
         retried.current.add(idx)
         setQueue((q) => [...q, exercise])
       }
@@ -235,6 +235,7 @@ export function LessonPlayer({ lessonId }: { lessonId: string }) {
               {exercise?.kind === 'qcm' && <QcmView exercise={exercise} phase={phase} report={report} />}
               {exercise?.kind === 'listen' && <ListenView exercise={exercise} phase={phase} report={report} />}
               {exercise?.kind === 'pairs' && <PairsView exercise={exercise} report={report} />}
+              {exercise?.kind === 'echo' && <EchoView word={exercise.word} phase={phase} report={report} next={next} />}
               {exercise?.kind === 'build' && <BuildView exercise={exercise} phase={phase} report={report} />}
             </motion.div>
           </AnimatePresence>

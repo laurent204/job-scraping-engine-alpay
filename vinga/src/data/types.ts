@@ -48,7 +48,7 @@ export interface Module {
   titleCa: string
   /** design token color key: terra | sol | mar | oliva | rosa */
   color: 'terra' | 'sol' | 'mar' | 'oliva' | 'rosa'
-  emblem: 'sun' | 'numbers' | 'food' | 'market' | 'compass'
+  emblem: 'sun' | 'numbers' | 'food' | 'market' | 'compass' | 'weather' | 'family' | 'beach'
   description: string
   lessons: Lesson[]
   /** "Ho sabies?" cultural tidbit shown on completion screens */

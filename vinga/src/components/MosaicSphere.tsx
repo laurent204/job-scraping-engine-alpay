@@ -1,10 +1,12 @@
 import { useMemo, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import type { ArtworkKind } from './artworks'
 
 /**
- * "El teu mosaic" — a trencadís sphere that gets tiled in, lesson
- * after lesson, like a little Gaudí artwork you rebuild by learning.
+ * "El teu mosaic" — trencadís artworks tiled in lesson after lesson,
+ * like little Gaudí pieces you rebuild by learning.
+ * Artwork 1: the sun (sphere). Artwork 2: the Park Güell serpentine bench.
  */
 
 const PALETTE = ['#e4572e', '#f4b942', '#2a7f9e', '#7c873b', '#d95f87', '#fff3dd', '#e4572e', '#f4b942']
@@ -25,10 +27,10 @@ interface Face {
   color: THREE.Color
 }
 
-function buildFaces(): Face[] {
-  const geo = new THREE.IcosahedronGeometry(1, 2).toNonIndexed()
-  const pos = geo.getAttribute('position')
-  const rnd = mulberry32(42)
+function explodeIntoShards(geo: THREE.BufferGeometry, seed: number): Face[] {
+  const source = geo.toNonIndexed()
+  const pos = source.getAttribute('position')
+  const rnd = mulberry32(seed)
   const faces: Face[] = []
   for (let i = 0; i < pos.count; i += 3) {
     const a = new THREE.Vector3().fromBufferAttribute(pos, i)
@@ -43,13 +45,41 @@ function buildFaces(): Face[] {
     ) as Face['verts']
     faces.push({ verts, centroid, color })
   }
-  // Tile from the top down, with a slight swirl for organic growth
+  source.dispose()
+  geo.dispose()
+  return faces
+}
+
+/** Serpentine bench spine — an undulating ribbon, seen from above */
+function bancCurve(): THREE.CatmullRomCurve3 {
+  const pts: THREE.Vector3[] = []
+  for (let i = 0; i <= 10; i++) {
+    const t = i / 10
+    pts.push(
+      new THREE.Vector3((t - 0.5) * 3.0, Math.sin(t * Math.PI * 4) * 0.06, Math.sin(t * Math.PI * 3) * 0.5),
+    )
+  }
+  return new THREE.CatmullRomCurve3(pts)
+}
+
+function buildFaces(kind: ArtworkKind): Face[] {
+  if (kind === 'banc') {
+    // 16 tubular × 6 radial × 2 = exactly 192 shards
+    const geo = new THREE.TubeGeometry(bancCurve(), 16, 0.3, 6, false)
+    geo.scale(1, 0.68, 1)
+    const faces = explodeIntoShards(geo, 77)
+    // tile from left to right along the bench
+    faces.sort((f1, f2) => f1.centroid.x - f2.centroid.x || f1.centroid.z - f2.centroid.z)
+    return faces
+  }
+  // el sol — 320 shards
+  const faces = explodeIntoShards(new THREE.IcosahedronGeometry(1, 2), 42)
+  // tile from the top down, with a slight swirl for organic growth
   faces.sort((f1, f2) => {
     const a1 = Math.atan2(f1.centroid.x, f1.centroid.z)
     const a2 = Math.atan2(f2.centroid.x, f2.centroid.z)
     return f2.centroid.y + a1 * 0.06 - (f1.centroid.y + a2 * 0.06)
   })
-  geo.dispose()
   return faces
 }
 
@@ -69,13 +99,18 @@ function facesToGeometry(faces: Face[], colored: boolean): THREE.BufferGeometry 
   return geo
 }
 
-function Sphere({ placed }: { placed: number }) {
+function Artwork({ kind, placed }: { kind: ArtworkKind; placed: number }) {
   const group = useRef<THREE.Group>(null)
   const drag = useRef({ vx: 0.0, down: false, lastX: 0 })
-  const faces = useMemo(buildFaces, [])
+  const faces = useMemo(() => buildFaces(kind), [kind])
+  const baseTilt = kind === 'banc' ? 0.52 : 0.28
 
   const placedGeo = useMemo(() => facesToGeometry(faces.slice(0, placed), true), [faces, placed])
   const ghostGeo = useMemo(() => facesToGeometry(faces.slice(placed), false), [faces, placed])
+  const core = useMemo(() => {
+    if (kind !== 'banc') return null
+    return new THREE.TubeGeometry(bancCurve(), 16, 0.26, 6, false).scale(1, 0.68, 1)
+  }, [kind])
 
   useFrame((state, dt) => {
     const g = group.current
@@ -83,16 +118,16 @@ function Sphere({ placed }: { placed: number }) {
     const t = state.clock.elapsedTime
     if (!drag.current.down) {
       drag.current.vx *= 0.95
-      g.rotation.y += (0.22 + drag.current.vx) * dt
+      g.rotation.y += ((kind === 'banc' ? 0.16 : 0.22) + drag.current.vx) * dt
     }
-    g.rotation.x = 0.28 + Math.sin(t * 0.5) * 0.04
+    g.rotation.x = baseTilt + Math.sin(t * 0.5) * 0.04
     g.position.y = Math.sin(t * 0.8) * 0.045
   })
 
   return (
     <group
       ref={group}
-      rotation={[0.28, 0, 0]}
+      rotation={[baseTilt, 0, 0]}
       onPointerDown={(e) => {
         drag.current.down = true
         drag.current.lastX = e.clientX
@@ -117,10 +152,16 @@ function Sphere({ placed }: { placed: number }) {
         <meshStandardMaterial color="#f6e7c8" transparent opacity={0.55} flatShading roughness={0.95} />
       </mesh>
       {/* inner core so gaps read as grout, not holes */}
-      <mesh>
-        <icosahedronGeometry args={[0.955, 1]} />
-        <meshStandardMaterial color="#c99d6d" roughness={1} />
-      </mesh>
+      {kind === 'banc' && core ? (
+        <mesh geometry={core}>
+          <meshStandardMaterial color="#c99d6d" roughness={1} />
+        </mesh>
+      ) : (
+        <mesh>
+          <icosahedronGeometry args={[0.955, 1]} />
+          <meshStandardMaterial color="#c99d6d" roughness={1} />
+        </mesh>
+      )}
     </group>
   )
 }
@@ -174,7 +215,17 @@ function hasWebgl(): boolean {
   return webglOk
 }
 
-export function MosaicSphere({ placed, total, height = 230 }: { placed: number; total: number; height?: number }) {
+export function MosaicSphere({
+  kind,
+  placed,
+  total,
+  height = 230,
+}: {
+  kind: ArtworkKind
+  placed: number
+  total: number
+  height?: number
+}) {
   if (!hasWebgl()) {
     // graceful 2D fallback
     const pct = Math.round((placed / total) * 100)
@@ -197,7 +248,7 @@ export function MosaicSphere({ placed, total, height = 230 }: { placed: number; 
         <ambientLight intensity={1.15} color="#fff2dd" />
         <directionalLight position={[2.5, 3, 2]} intensity={1.6} color="#ffe9c4" />
         <directionalLight position={[-3, -1, -2]} intensity={0.5} color="#9fd4e8" />
-        <Sphere placed={placed} />
+        <Artwork kind={kind} placed={placed} />
         <Orbiters />
       </Canvas>
     </div>

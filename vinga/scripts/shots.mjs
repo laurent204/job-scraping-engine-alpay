@@ -122,6 +122,7 @@ async function shot(page, name, delay = 600) {
   let pairsShot = false
   let buildShot = false
   let feedbackShot = false
+  let echoShot = false
 
   for (let step = 0; step < 200; step++) {
     await page.waitForTimeout(260)
@@ -139,6 +140,15 @@ async function shot(page, name, delay = 600) {
     // discover card
     if (await page.getByRole('button', { name: 'Compris !' }).count()) {
       await page.getByRole('button', { name: 'Compris !' }).click()
+      continue
+    }
+    // echo (pronunciation) → self-validate
+    if (await page.locator('.echo').count()) {
+      if (!echoShot) {
+        await shot(page, '10b-lesson-echo', 300)
+        echoShot = true
+      }
+      await page.locator('.echo-skip').click({ timeout: 3000 }).catch(() => {})
       continue
     }
     // pairs
@@ -212,6 +222,24 @@ async function shot(page, name, delay = 600) {
     }
   }
   await shot(page, '13-dialogue', 800)
+  await ctx.close()
+}
+
+/* ---------- 6. artwork 2 (the bench) + A2 modules ---------- */
+{
+  const done = {}
+  for (const m of ['hola', 'nombres', 'rest', 'mercat', 'carrer', 'temps']) {
+    for (const s of ['1', '2', '3', 'dialogue']) done[`${m}-${s}`] = { best: 0.94, times: 1 }
+  }
+  done['familia-1'] = { best: 0.9, times: 1 }
+  done['familia-2'] = { best: 1, times: 1 }
+  const { ctx, page } = await newPage({
+    state: { ...RICH_STATE.state, xp: 1240, streak: { count: 18, lastDay: today() }, lessonsDone: done },
+    version: 0,
+  })
+  await shot(page, '14-artwork-banc', 1800)
+  await page.locator('.home').evaluate((el) => el.scrollTo(0, el.scrollHeight))
+  await shot(page, '15-ruta-a2', 900)
   await ctx.close()
 }
 

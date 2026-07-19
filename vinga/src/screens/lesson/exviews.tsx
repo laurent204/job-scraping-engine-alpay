@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Word } from '../../data/types'
 import type { Exercise } from '../../data/exercises'
 import { sentenceChips } from '../../data/exercises'
 import { speak, ttsAvailable } from '../../lib/tts'
 import { sfx } from '../../lib/sfx'
-import { IconSpeaker } from '../../components/Icons'
+import { listenOnce, matchesTarget, speechRecognitionAvailable } from '../../lib/speech'
+import { IconMic, IconSpeaker } from '../../components/Icons'
 
 export type Phase = 'idle' | 'ok' | 'ko'
 
@@ -360,6 +361,120 @@ export function PairsView({
           ))}
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ---------------------------------------------------------------- */
+/* Echo — say it out loud (speech recognition when available)        */
+/* ---------------------------------------------------------------- */
+
+export function EchoView({
+  word,
+  phase,
+  report,
+  next,
+}: { word: Word } & ViewProps) {
+  const canListen = speechRecognitionAvailable()
+  const [state, setState] = useState<'idle' | 'listening' | 'retry'>('idle')
+  const [heard, setHeard] = useState('')
+  const cancelRef = useRef<null | (() => void)>(null)
+
+  useEffect(() => {
+    setState('idle')
+    setHeard('')
+    const t = setTimeout(() => speak(word.ca), 450)
+    return () => clearTimeout(t)
+  }, [word])
+
+  useEffect(() => () => cancelRef.current?.(), [])
+
+  const startListening = async () => {
+    sfx.tap()
+    setState('listening')
+    setHeard('')
+    const { result, cancel } = listenOnce('ca-ES')
+    cancelRef.current = cancel
+    const transcript = await result
+    cancelRef.current = null
+    if (transcript && matchesTarget(transcript, word.ca)) {
+      setHeard(transcript)
+      report(true, word.ca)
+    } else if (state !== 'retry' && transcript) {
+      setHeard(transcript)
+      setState('retry')
+      sfx.wrong()
+    } else if (transcript) {
+      setHeard(transcript)
+      report(false, word.ca)
+    } else {
+      // silence / mic error: no penalty, back to idle
+      setState('idle')
+    }
+  }
+
+  return (
+    <div className="ex echo">
+      <span className="t-label ex-kind">Repeteix — répète à voix haute</span>
+      <motion.div
+        className="echo-card"
+        initial={{ opacity: 0, y: 26 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={spring}
+        onClick={() => speak(word.ca)}
+      >
+        <span className="echo-emoji">{word.emoji}</span>
+        <h2 className="t-display echo-ca">{word.ca}</h2>
+        <button
+          className="phon-chip"
+          onClick={(e) => {
+            e.stopPropagation()
+            speak(word.ca)
+            sfx.tap()
+          }}
+        >
+          {ttsAvailable() && <IconSpeaker size={15} />}
+          <span>{word.phon}</span>
+        </button>
+        <p className="arch-fr">{word.fr}</p>
+      </motion.div>
+
+      {canListen ? (
+        <>
+          <motion.button
+            className={`echo-mic ${state === 'listening' ? 'is-listening' : ''}`}
+            whileTap={{ scale: 0.92 }}
+            disabled={phase !== 'idle' || state === 'listening'}
+            onClick={startListening}
+          >
+            <IconMic size={34} />
+            <span>{state === 'listening' ? 'T’escolto…' : state === 'retry' ? 'Encore une fois !' : 'Appuie et parle'}</span>
+          </motion.button>
+          {heard && state === 'retry' && (
+            <p className="echo-heard">
+              J’ai entendu « {heard} » — réécoute et réessaie, poc a poc.
+            </p>
+          )}
+        </>
+      ) : (
+        <p className="echo-selfhint">
+          Écoute le mot, puis dis-le à voix haute — la syllabe en capitales porte l’accent.
+        </p>
+      )}
+
+      {phase === 'idle' && (
+        <div className="ex-footer">
+          <button
+            className="btn btn-ghost echo-skip"
+            onClick={() => {
+              sfx.tap()
+              next()
+            }}
+          >
+            {canListen ? 'Je l’ai dit ✓' : 'Fet ! Je l’ai dit'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

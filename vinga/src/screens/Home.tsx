@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
 import { MODULES, ALL_LESSONS } from '../data/content'
 import type { Lesson, Module } from '../data/types'
-import { useStore, TOTAL_SHARDS, SHARDS_PER_LESSON, dailyGoalXp, isUnlocked } from '../store'
+import { useStore, SHARDS_PER_LESSON, dailyGoalXp, isUnlocked } from '../store'
 import { Mosaic3D } from '../components/Mosaic3D'
+import { artworkFor, ARTWORKS } from '../components/artworks'
 import { Emblem } from '../components/Emblem'
 import { IconChat, IconCheck, IconFlame, IconLock, IconShard } from '../components/Icons'
 import { sfx } from '../lib/sfx'
@@ -137,6 +138,7 @@ export function Home() {
   const goalPct = Math.min(1, (todayXp.day === todayStr ? todayXp.xp : 0) / goal)
 
   const currentIndex = ALL_LESSONS.findIndex((e) => !lessonsDone[e.lesson.id])
+  const artwork = artworkFor(shards)
   let globalIndex = 0
 
   return (
@@ -165,12 +167,12 @@ export function Home() {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 240, damping: 26, delay: 0.05 }}
       >
-        <Mosaic3D placed={shards} total={TOTAL_SHARDS} height={225} />
+        <Mosaic3D shards={shards} height={225} />
         <div className="hero-caption">
           <div className="hero-stat">
             <IconShard size={15} />
             <span>
-              <strong>{shards}</strong>/{TOTAL_SHARDS} tessel·les
+              <strong>{artwork.placed}</strong>/{artwork.faces} tessel·les
             </span>
           </div>
           <div className="hero-goal">
@@ -196,7 +198,9 @@ export function Home() {
             </span>
           </div>
         </div>
-        <p className="hero-hook">Chaque leçon ajoute des tesselles à ta mosaïque.</p>
+        <p className="hero-hook">
+          Œuvre {artwork.index + 1}/{ARTWORKS.length} : « {artwork.name} » — chaque leçon pose ses tesselles.
+        </p>
       </motion.section>
 
       <div className="ruta">
@@ -253,7 +257,7 @@ export function Home() {
         })}
         <div className="ruta-end">
           <span className="t-display">I ara què?</span>
-          <p>D’autres quartiers arrivent bientôt : le temps, la famille, la plage…</p>
+          <p>L’aventure continue — d’autres quartiers arriveront, poc a poc.</p>
         </div>
       </div>
     </div>

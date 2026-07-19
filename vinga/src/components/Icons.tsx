@@ -110,6 +110,13 @@ export const IconSettings = (p: IconProps) => (
   </S>
 )
 
+export const IconMic = (p: IconProps) => (
+  <S {...p}>
+    <rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor" stroke="none" />
+    <path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M8.5 21h7" />
+  </S>
+)
+
 export const IconSparkle = (p: IconProps) => (
   <S {...p}>
     <path d="M12 3l1.8 5.4L19 10l-5.2 1.9L12 17l-1.8-5.1L5 10l5.2-1.6L12 3z" fill="currentColor" stroke="none" />

@@ -7,6 +7,7 @@ export type Exercise =
   | { kind: 'listen'; prompt: Word; options: Word[] }
   | { kind: 'pairs'; words: Word[] }
   | { kind: 'build'; word: Word; sentence: { ca: string; fr: string } }
+  | { kind: 'echo'; word: Word }
 
 /** Deterministic PRNG so a lesson always has the same shape */
 function mulberry32(seed: number) {
@@ -73,8 +74,9 @@ export function buildExercises(lesson: Lesson, ttsAvailable: boolean): Exercise[
     }
   }
 
-  // Mixed recall: pairs + sentence building + reverse checks
+  // Mixed recall: pairs + pronunciation + sentence building + reverse checks
   out.push({ kind: 'pairs', words: shuffle(words, rnd).slice(0, Math.min(5, words.length)) })
+  out.push({ kind: 'echo', word: shuffle(words, rnd)[0] })
 
   const withEx = words.filter((x) => x.ex)
   if (withEx.length > 0) {

@@ -1,4 +1,5 @@
 import type { Module, Word } from './types'
+import { A2_MODULES } from './content2'
 
 /* ------------------------------------------------------------------ */
 /* Helper                                                              */
@@ -754,7 +755,7 @@ const m5: Module = {
   ],
 }
 
-export const MODULES: Module[] = [m1, m2, m3, m4, m5]
+export const MODULES: Module[] = [m1, m2, m3, m4, m5, ...A2_MODULES]
 
 /** Flat ordered list of every lesson with its module */
 export const ALL_LESSONS = MODULES.flatMap((m) => m.lessons.map((l) => ({ module: m, lesson: l })))

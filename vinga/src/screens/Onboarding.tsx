@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
 import { Mosaic3D } from '../components/Mosaic3D'
-import { TOTAL_SHARDS } from '../store'
 import { sfx } from '../lib/sfx'
 
 const spring = { type: 'spring', stiffness: 320, damping: 30 } as const
@@ -30,7 +29,7 @@ export function Onboarding() {
             exit={{ opacity: 0, x: -50 }}
           >
             <div className="onb-hero3d">
-              <Mosaic3D placed={214} total={TOTAL_SHARDS} height={280} />
+              <Mosaic3D shards={214} height={280} />
             </div>
             <motion.h1 className="t-display onb-title" initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.15 }}>
               Hola! <br />

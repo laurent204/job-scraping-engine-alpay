@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useStore, TOTAL_SHARDS, SHARDS_PER_LESSON, dailyGoalXp } from '../store'
 import { ALL_LESSONS, TOTAL_WORDS } from '../data/content'
 import { Mosaic3D } from '../components/Mosaic3D'
+import { artworkFor } from '../components/artworks'
 import { IconFlame, IconShard, IconSparkle } from '../components/Icons'
 import { sfx } from '../lib/sfx'
 
@@ -13,13 +14,17 @@ const MILESTONES = [
   { at: 8, emoji: '🔢', title: 'Comptable català', desc: 'Deux modules complétés' },
   { at: 12, emoji: '🥘', title: 'Client habitual', desc: 'Trois modules complétés' },
   { at: 16, emoji: '🧺', title: 'Rei del mercat', desc: 'Quatre modules complétés' },
-  { at: 20, emoji: '🏆', title: 'Mosaic complet', desc: 'Toute la ruta terminée !' },
+  { at: 20, emoji: '☀️', title: 'El sol complet', desc: 'La première œuvre est achevée !' },
+  { at: 24, emoji: '🌦️', title: 'Home del temps', desc: 'La météo, les jours et l’heure' },
+  { at: 28, emoji: '🏡', title: 'De la família', desc: 'Sept modules complétés' },
+  { at: 32, emoji: '🏆', title: 'Obra completa', desc: 'Les deux œuvres, toute la ruta !' },
 ]
 
 export function Profile() {
   const { xp, streak, lessonsDone, srs, goalMin, sound, setSound } = useStore()
   const doneCount = Object.keys(lessonsDone).length
   const shards = doneCount * SHARDS_PER_LESSON
+  const artwork = artworkFor(shards)
   const wordsLearned = Object.keys(srs).length
   const accuracies = Object.values(lessonsDone).map((l) => l.best)
   const avgAccuracy = accuracies.length ? Math.round((accuracies.reduce((a, b) => a + b, 0) / accuracies.length) * 100) : 0
@@ -32,13 +37,13 @@ export function Profile() {
           {shards === 0
             ? 'Chaque leçon posera ses tesselles ici.'
             : shards >= TOTAL_SHARDS
-              ? 'Chef-d’œuvre terminé. Gaudí serait fier.'
-              : `${Math.round((shards / TOTAL_SHARDS) * 100)}% de l’œuvre reconstruite.`}
+              ? 'Les deux œuvres sont achevées. Gaudí serait fier.'
+              : `Œuvre ${artwork.index + 1} : « ${artwork.name} » — ${Math.round((artwork.placed / artwork.faces) * 100)}% reconstruite.`}
         </p>
       </header>
 
       <motion.div className="profile-mosaic" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={spring}>
-        <Mosaic3D placed={shards} total={TOTAL_SHARDS} height={250} />
+        <Mosaic3D shards={shards} height={250} />
       </motion.div>
 
       <div className="profile-stats">
