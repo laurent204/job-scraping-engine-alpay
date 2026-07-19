@@ -1,0 +1,16 @@
+{
+  "name": "Vinga! — Le catalan, poc a poc",
+  "short_name": "Vinga!",
+  "description": "Apprends le catalan depuis le français : conversations réelles, mosaïque 3D, méthode douce.",
+  "lang": "fr",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF1E2",
+  "theme_color": "#FAF1E2",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

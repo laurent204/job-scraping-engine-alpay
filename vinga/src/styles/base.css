@@ -1,0 +1,293 @@
+/* ================================================================
+   VINGA! — Design system
+   Mediterranean sunlight: warm cream, terracotta, sea, olive, sun.
+   Type: Fraunces (display, soft & wonky) + Outfit (UI).
+   ================================================================ */
+
+:root {
+  /* — palette — */
+  --crema: #faf1e2;
+  --crema-2: #fffaf0;
+  --crema-3: #f2e4cb;
+  --linia: rgba(94, 48, 18, 0.1);
+  --tinta: #2e1706;
+  --tinta-70: rgba(46, 23, 6, 0.72);
+  --tinta-50: rgba(46, 23, 6, 0.5);
+  --tinta-30: rgba(46, 23, 6, 0.3);
+
+  --terra: #e4572e;
+  --terra-fosc: #b93f1d;
+  --terra-clar: #fce4d6;
+  --sol: #f4b942;
+  --sol-fosc: #cf941c;
+  --sol-clar: #fdedc9;
+  --mar: #2a7f9e;
+  --mar-fosc: #1e5f78;
+  --mar-clar: #d8ebf1;
+  --oliva: #7c873b;
+  --oliva-fosc: #5e6a28;
+  --oliva-clar: #e9ecd4;
+  --rosa: #d95f87;
+  --rosa-fosc: #b34367;
+  --rosa-clar: #f9dde7;
+
+  --ok: #5c8a38;
+  --ok-fosc: #47702a;
+  --ok-clar: #e5efd4;
+  --ko: #c93e2c;
+  --ko-clar: #f9ded6;
+
+  /* — elevation — */
+  --ombra-s: 0 2px 8px -2px rgba(122, 62, 24, 0.12);
+  --ombra-m: 0 10px 28px -10px rgba(122, 62, 24, 0.22);
+  --ombra-l: 0 24px 48px -16px rgba(122, 62, 24, 0.28);
+
+  /* — shape — */
+  --r-s: 14px;
+  --r-m: 22px;
+  --r-l: 30px;
+  --r-arch: 170px 170px 30px 30px;
+
+  /* — type — */
+  --f-display: 'Fraunces Variable', 'Georgia', serif;
+  --f-ui: 'Outfit Variable', system-ui, -apple-system, sans-serif;
+
+  font-size: 16px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--f-ui);
+  background: var(--crema);
+  color: var(--tinta);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Subtle paper grain over everything */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* ================= app frame ================= */
+
+.app {
+  position: relative;
+  height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--crema);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 560px) {
+  body {
+    background: #eee0c9;
+  }
+  .app {
+    height: min(880px, calc(100% - 48px));
+    margin-top: max(24px, calc((100% - 880px) / 2));
+    border-radius: 44px;
+    box-shadow:
+      0 0 0 10px #3a2412,
+      0 40px 80px -20px rgba(60, 30, 10, 0.55);
+  }
+}
+
+/* ================= typography ================= */
+
+.t-display {
+  font-family: var(--f-display);
+  font-variation-settings: 'SOFT' 70, 'WONK' 1;
+  font-weight: 620;
+  letter-spacing: -0.01em;
+  line-height: 1.04;
+}
+
+.t-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tinta-50);
+}
+
+/* ================= buttons ================= */
+
+.btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: var(--r-m);
+  font-family: var(--f-ui);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.btn:disabled {
+  cursor: default;
+}
+
+.btn-primary {
+  background: var(--terra);
+  color: #fff8f0;
+  box-shadow: 0 4px 0 var(--terra-fosc), var(--ombra-s);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--terra-fosc);
+}
+.btn-primary:disabled {
+  background: var(--crema-3);
+  color: var(--tinta-30);
+  box-shadow: 0 4px 0 rgba(94, 48, 18, 0.12);
+}
+
+.btn-ok {
+  background: var(--ok);
+  color: #f7fbef;
+  box-shadow: 0 4px 0 var(--ok-fosc), var(--ombra-s);
+}
+.btn-ok:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--ok-fosc);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--tinta-70);
+  box-shadow: inset 0 0 0 2px var(--linia);
+}
+.btn-ghost:active {
+  background: var(--crema-3);
+}
+
+.btn-sol {
+  background: var(--sol);
+  color: var(--tinta);
+  box-shadow: 0 4px 0 var(--sol-fosc), var(--ombra-s);
+}
+.btn-sol:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--sol-fosc);
+}
+
+/* ================= choice chips (answers) ================= */
+
+.chip {
+  position: relative;
+  width: 100%;
+  padding: 15px 18px;
+  border-radius: var(--r-m);
+  background: var(--crema-2);
+  box-shadow: 0 3px 0 var(--linia), var(--ombra-s);
+  border: 2px solid transparent;
+  font-size: 17px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--tinta);
+  transition: transform 0.06s ease, box-shadow 0.06s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.chip:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--linia);
+}
+.chip.is-selected {
+  border-color: var(--mar);
+  background: var(--mar-clar);
+  box-shadow: 0 3px 0 var(--mar), var(--ombra-s);
+}
+.chip.is-correct {
+  border-color: var(--ok);
+  background: var(--ok-clar);
+  box-shadow: 0 3px 0 var(--ok-fosc);
+}
+.chip.is-wrong {
+  border-color: var(--ko);
+  background: var(--ko-clar);
+  box-shadow: 0 3px 0 var(--ko);
+  animation: shake 0.4s ease;
+}
+.chip:disabled {
+  opacity: 0.55;
+}
+.chip.is-correct:disabled,
+.chip.is-wrong:disabled {
+  opacity: 1;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+/* ================= misc ================= */
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.hairline {
+  height: 1px;
+  background: var(--linia);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
