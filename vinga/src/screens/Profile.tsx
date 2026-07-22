@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useStore, TOTAL_SHARDS, SHARDS_PER_LESSON, dailyGoalXp } from '../store'
 import { downloadNeural, neuralStatus, onNeuralChange, type NeuralStatus } from '../lib/neuralVoice'
+import { BackupSetting } from '../components/BackupSheets'
 import { ALL_LESSONS, TOTAL_WORDS } from '../data/content'
 import { Mosaic3D } from '../components/Mosaic3D'
 import { artworkFor } from '../components/artworks'
@@ -35,7 +36,9 @@ function VoiceSetting() {
         ? `Téléchargement… ${Math.round(pct * 100)} %`
         : status === 'error'
           ? 'Téléchargement impossible — réessaie en wifi'
-          : 'Voix du système (selon l’appareil)'
+          : status === 'unsupported'
+            ? 'Indisponible dans la démo — installe la version complète'
+            : 'Voix du système (selon l’appareil)'
 
   return (
     <div className="setting-row">
@@ -43,7 +46,7 @@ function VoiceSetting() {
         <strong>Veu catalana</strong>
         <span>{label}</span>
       </div>
-      {status !== 'ready' && status !== 'downloading' && (
+      {status !== 'ready' && status !== 'downloading' && status !== 'unsupported' && (
         <button
           className="goal-mini-btn is-active voice-setting-btn"
           onClick={() => {
@@ -152,6 +155,7 @@ export function Profile() {
           </button>
         </div>
         <VoiceSetting />
+        <BackupSetting />
         <div className="setting-row">
           <div>
             <strong>Objectif quotidien</strong>

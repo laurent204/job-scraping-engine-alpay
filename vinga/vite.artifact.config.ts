@@ -14,6 +14,7 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 export default defineConfig({
   plugins: [react(), viteSingleFile()],
   base: './',
+  define: { __NEURAL_VOICE__: 'false' },
   resolve: {
     alias: {
       '@mintplex-labs/piper-tts-web': fileURLToPath(new URL('./src/lib/piperStub.ts', import.meta.url)),

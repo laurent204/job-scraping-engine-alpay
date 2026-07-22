@@ -11,7 +11,7 @@
  */
 
 export const VOICE_ID = 'ca_ES-upc_ona-x_low'
-export type NeuralStatus = 'unknown' | 'absent' | 'downloading' | 'ready' | 'error'
+export type NeuralStatus = 'unknown' | 'unsupported' | 'absent' | 'downloading' | 'ready' | 'error'
 
 type PiperModule = typeof import('@mintplex-labs/piper-tts-web')
 
@@ -47,6 +47,10 @@ async function lib(): Promise<PiperModule> {
 /** Detect a previously downloaded voice (no network needed). */
 export async function initNeural(): Promise<void> {
   if (status !== 'unknown') return
+  if (!__NEURAL_VOICE__) {
+    setStatus('unsupported')
+    return
+  }
   try {
     const piper = await lib()
     const ids = await piper.stored()
@@ -59,6 +63,7 @@ export async function initNeural(): Promise<void> {
 /** Fetch the voice model (~25 MB, once). Resolves true on success. */
 export async function downloadNeural(onProgress?: (pct: number) => void): Promise<boolean> {
   if (status === 'ready') return true
+  if (status === 'unsupported') return false
   setStatus('downloading')
   try {
     const piper = await lib()
