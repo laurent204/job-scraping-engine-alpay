@@ -32,6 +32,8 @@ Deux œuvres se succèdent, rendues en WebGL et manipulables du doigt : **el sol
   voisine, amie à la plage…) : le PNJ parle (audio + traduction), on répond en choisissant de
   vraies répliques. C'est l'entraînement direct de l'objectif : tenir une conversation.
 - **Repàs** — répétition espacée légère : les mots appris reviennent à échéance (10 min → 1 j → ×2,5).
+- **La motxilla** 🎒 — sauvegarde portable de la progression (Profil → Progression) : un code
+  compact `VINGA1.…` à copier ou un fichier `.json`, restaurable sur n'importe quel appareil.
 - **Phonétique pour francophones** — chaque mot est accompagné d'une prononciation lisible
   (`Gràcies` → « GRA-si-euss »), la syllabe accentuée en capitales.
 - **Gamification douce** — XP, objectif quotidien, série de jours (ratxa), jalons (fites),
@@ -66,6 +68,12 @@ Si le téléchargement échoue (hors-ligne, réseau restreint), l'app le dit cla
 avec les niveaux 2-3 — ce chemin est couvert par le harnais de test.
 
 ## Ouvrir l'application
+
+**Essayer en 30 secondes (démo jouable)** : la version un-fichier est publiée ici —
+<https://claude.ai/code/artifact/9625a292-83db-4ab9-ab33-bb7a4faf685c>. Le lien se partage depuis
+le menu de partage de la page (elle est privée par défaut). Dans cette démo la voix neuronale et
+le micro sont désactivés (audio de repli), et la progression se conserve via la motxilla
+(Profil → Progression → Exporter).
 
 **En local (développement)** :
 
